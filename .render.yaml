@@ -8,9 +8,9 @@ services:
     plan: standard
     envVars:
       - key: WORDPRESS_DB_HOST
-        value: auth-db1578.hstgr.io      # Hostinger DB host
+        value: srv1578.hstgr.io      
       - key: WORDPRESS_DB_USER
-        value: u674474931_wordpress_woo2            # Hostinger DB user
+        value: u674474931_wordpress_woo2            
       - key: WORDPRESS_DB_PASSWORD
         value: Wordpress-woo_@_2025             # Hostinger DB password
       - key: WORDPRESS_DB_NAME
