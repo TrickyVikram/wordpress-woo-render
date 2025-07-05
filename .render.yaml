@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: wordpress-woo
+    env: docker
+    repo: https://github.com/YOUR_GITHUB_USERNAME/wordpress-woo-render
+    dockerContext: .
+    dockerfilePath: Dockerfile
+    plan: standard
+    envVars:
+      - key: WORDPRESS_DB_HOST
+        value: YOUR-MYSQL-HOST
+      - key: WORDPRESS_DB_USER
+        value: YOUR-DB-USER
+      - key: WORDPRESS_DB_PASSWORD
+        value: YOUR-DB-PASSWORD
+      - key: WORDPRESS_DB_NAME
+        value: YOUR-DB-NAME
