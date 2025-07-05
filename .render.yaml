@@ -2,16 +2,16 @@ services:
   - type: web
     name: wordpress-woo
     env: docker
-    repo: https://github.com/YOUR_GITHUB_USERNAME/wordpress-woo-render
+    repo: https://github.com/YOUR_USERNAME/wordpress-woo-render
     dockerContext: .
     dockerfilePath: Dockerfile
     plan: standard
     envVars:
       - key: WORDPRESS_DB_HOST
-        value: YOUR-MYSQL-HOST
+        value: mysql1234.hostinger.com        # Hostinger DB host
       - key: WORDPRESS_DB_USER
-        value: YOUR-DB-USER
+        value: u123456789_user                # Hostinger DB user
       - key: WORDPRESS_DB_PASSWORD
-        value: YOUR-DB-PASSWORD
+        value: your_db_password               # Hostinger DB password
       - key: WORDPRESS_DB_NAME
-        value: YOUR-DB-NAME
+        value: u123456789_wpdb                # Hostinger DB name
