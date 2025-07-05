@@ -32,7 +32,7 @@ define( 'DB_USER', 'u674474931_wordpress_woo2' );
 define( 'DB_PASSWORD', 'Wordpress-woo_@_2025' );
 
 /** Database hostname */
-define( 'DB_HOST', ' https://auth-db1578.hstgr.io/index.php?db=u674474931_wordpress_woo' );
+define( 'DB_HOST', 'auth-db1578.hstgr.io' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
