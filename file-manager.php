@@ -1,4 +1,38 @@
 <?php
+session_start();
+
+// === LOGIN ===
+if (!isset($_SESSION['logged_in'])) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'])) {
+        if ($_POST['username'] === '7870766827' && $_POST['password'] === '7870766827') {
+            $_SESSION['logged_in'] = true;
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            $error = "Invalid username or password.";
+        }
+    }
+
+    // Show login form
+    echo <<<HTML
+    <h2>🔐 Login Required</h2>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Username" required><br><br>
+        <input type="password" name="password" placeholder="Password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+HTML;
+    if (isset($error)) echo "<p style='color:red;'>$error</p>";
+    exit;
+}
+
+// === LOGOUT ===
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 $uploadDir = __DIR__ . '/upload/';
 $rootDir = __DIR__ . '/';
 
@@ -19,6 +53,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
                 $zip->close();
                 unlink($target);
             }
+        }
+    }
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+// === Handle Manual Unzip ===
+if (isset($_GET['unzip'])) {
+    $file = basename($_GET['unzip']);
+    $location = $_GET['scope'] === 'root' ? $rootDir : $uploadDir;
+    $path = $location . $file;
+
+    if (file_exists($path) && pathinfo($file, PATHINFO_EXTENSION) === 'zip') {
+        $zip = new ZipArchive;
+        if ($zip->open($path) === TRUE) {
+            $zip->extractTo($location);
+            $zip->close();
+            unlink($path); // delete after unzip (optional)
         }
     }
     header("Location: " . $_SERVER['PHP_SELF']);
@@ -167,6 +219,9 @@ $rootFiles = array_diff(scandir($rootDir), ['.', '..']);
             <a href="upload/<?= urlencode($file) ?>" target="_blank"><?= htmlspecialchars($file) ?></a>
             | <a href="?edit=<?= urlencode($file) ?>&scope=upload">✏️ Edit</a>
             | <a href="?delete=<?= urlencode($file) ?>&scope=upload" onclick="return confirm('Delete?')">🗑️ Delete</a>
+            <?php if (pathinfo($file, PATHINFO_EXTENSION) === 'zip') : ?>
+                | <a href="?unzip=<?= urlencode($file) ?>&scope=upload" onclick="return confirm('Unzip this file?')">🧩 Unzip</a>
+            <?php endif; ?>
         </li>
         <?php endforeach; ?>
     </ul>
@@ -180,9 +235,15 @@ $rootFiles = array_diff(scandir($rootDir), ['.', '..']);
                 <a href="<?= htmlspecialchars($file) ?>" target="_blank"><?= htmlspecialchars($file) ?></a>
                 | <a href="?edit=<?= urlencode($file) ?>&scope=root">✏️ Edit</a>
                 | <a href="?delete=<?= urlencode($file) ?>&scope=root" onclick="return confirm('Delete ROOT file?')">🗑️ Delete</a>
+                <?php if (pathinfo($file, PATHINFO_EXTENSION) === 'zip') : ?>
+                    | <a href="?unzip=<?= urlencode($file) ?>&scope=root" onclick="return confirm('Unzip this ROOT file?')">🧩 Unzip</a>
+                <?php endif; ?>
             </li>
             <?php endif; ?>
         <?php endforeach; ?>
     </ul>
+
+    <hr>
+    <p><a href="?logout=1">🚪 Logout</a></p>
 </body>
 </html>
