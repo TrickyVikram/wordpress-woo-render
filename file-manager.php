@@ -2,14 +2,15 @@
 $uploadDir = __DIR__ . '/upload/';
 $rootDir = __DIR__ . '/';
 
-if (!is_dir($uploadDir)) mkdir($uploadDir);
+if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-// === Handle Upload in /upload ===
+// === Handle Upload ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     $fileName = basename($_FILES['upload_file']['name']);
     $target = $uploadDir . $fileName;
 
     if (move_uploaded_file($_FILES['upload_file']['tmp_name'], $target)) {
+        chmod($target, 0777);
         if (pathinfo($fileName, PATHINFO_EXTENSION) === 'zip' && isset($_POST['unzip'])) {
             $zip = new ZipArchive;
             if ($zip->open($target) === TRUE) {
@@ -23,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
     exit;
 }
 
-// === Handle Delete (root or upload)
+// === Delete File ===
 if (isset($_GET['delete'])) {
     $file = basename($_GET['delete']);
     $location = $_GET['scope'] === 'root' ? $rootDir : $uploadDir;
@@ -33,7 +34,7 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-// === Edit file (root or upload)
+// === Edit File ===
 if (isset($_GET['edit'])) {
     $file = basename($_GET['edit']);
     $location = $_GET['scope'] === 'root' ? $rootDir : $uploadDir;
@@ -54,15 +55,20 @@ HTML;
     }
 }
 
-// === Save Edited File
+// === Save File ===
 if (isset($_POST['save'], $_POST['file'], $_POST['content'], $_POST['scope'])) {
     $location = $_POST['scope'] === 'root' ? $rootDir : $uploadDir;
-    file_put_contents($location . basename($_POST['file']), $_POST['content']);
+    $filePath = $location . basename($_POST['file']);
+    if (file_put_contents($filePath, $_POST['content']) === false) {
+        echo "<p style='color:red;'>❌ Failed to save file. Check permissions.</p>";
+        exit;
+    }
+    chmod($filePath, 0777);
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
-// === Get lists
+// === File Lists
 $uploadFiles = array_diff(scandir($uploadDir), ['.', '..']);
 $rootFiles = array_diff(scandir($rootDir), ['.', '..']);
 ?>

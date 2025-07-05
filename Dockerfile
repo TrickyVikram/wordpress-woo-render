@@ -9,21 +9,22 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install gd zip mysqli
 
-# Copy wp-config.php
-COPY wp-config.php /var/www/html/wp-config.php
-
-# Enable directory listing in Apache
+# Enable directory listing and allow .php editing
 RUN echo '<Directory /var/www/html>' >> /etc/apache2/apache2.conf && \
     echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf && \
     echo '    AllowOverride All' >> /etc/apache2/apache2.conf && \
     echo '    Require all granted' >> /etc/apache2/apache2.conf && \
     echo '</Directory>' >> /etc/apache2/apache2.conf
 
-# Create upload directory with full permissions
-RUN mkdir -p /var/www/html/upload && chmod 777 /var/www/html/upload
+# Create /upload directory and set permissions
+RUN mkdir -p /var/www/html/upload && chmod -R 777 /var/www/html/upload
 
-# Copy file-manager.php
+# Copy WordPress config and file manager
+COPY wp-config.php /var/www/html/wp-config.php
 COPY file-manager.php /var/www/html/file-manager.php
 
-# Optional test file
-RUN echo "This is a test file" > /var/www/html/test.txt
+# Set permissions for editing
+RUN chmod -R 777 /var/www/html
+
+# Enable Apache rewrite (optional for .htaccess usage)
+RUN a2enmod rewrite
