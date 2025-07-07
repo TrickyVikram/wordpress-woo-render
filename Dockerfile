@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install PHP extensions
+# Install required packages
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -12,18 +12,17 @@ RUN apt-get update && apt-get install -y \
 # Enable mod_rewrite
 RUN a2enmod rewrite
 
-# Allow directory listing and PHP execution
-RUN echo '<Directory /var/www/html>' >> /etc/apache2/apache2.conf && \
-    echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf && \
-    echo '    AllowOverride All' >> /etc/apache2/apache2.conf && \
-    echo '    Require all granted' >> /etc/apache2/apache2.conf && \
-    echo '</Directory>' >> /etc/apache2/apache2.conf
+# PHP config to support 2GB uploads
+RUN echo "upload_max_filesize=2048M\npost_max_size=2048M\nmemory_limit=2048M\nmax_execution_time=600\nmax_input_time=600" > /usr/local/etc/php/conf.d/uploads.ini
 
-# Create upload folder
+# Allow 2GB uploads in Apache
+RUN echo "LimitRequestBody 2147483647" >> /etc/apache2/apache2.conf
+
+# Setup /upload directory
 RUN mkdir -p /var/www/html/upload && chmod -R 777 /var/www/html/upload
 
 # Copy your file manager
 COPY file-manager.php /var/www/html/file-manager.php
 
-# Set permissions
+# Permissions
 RUN chmod -R 777 /var/www/html
